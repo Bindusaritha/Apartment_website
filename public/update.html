@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Records | GateNest Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.svg" alt="GateNest Logo" class="sidebar-logo">
+                <div class="brand-text">
+                    <h1>GateNest</h1>
+                    <span>Visitor Security</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-category">Main Console</li>
+                <li class="menu-item">
+                    <a href="index.html" class="menu-link">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="list.html" class="menu-link">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Residents & Visitors</span>
+                    </a>
+                </li>
+
+                <li class="menu-category">Operations</li>
+                <li class="menu-item">
+                    <a href="listone.html" class="menu-link">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <span>Visitor Pass & Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="update.html" class="menu-link active">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Update Records</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="delete.html" class="menu-link">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Management</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="guard-status-indicator"></div>
+                <div class="guard-status-text">
+                    <strong>Main Gate Security</strong>
+                    <span>MySQL Database Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <header class="top-header">
+                <button class="btn-mobile-menu" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h2>Record Modification Console</h2>
+                    <p>Live MySQL pre-fetching and parameterized update operations</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-clock-badge">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="live-clock">Loading clock...</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <!-- Selection Bar -->
+                <div class="content-card" style="margin-bottom: 24px;">
+                    <div class="form-grid" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="update_type_select">Choose Table / Entity to Edit</label>
+                            <select id="update_type_select" class="form-control" onchange="onTypeChanged()">
+                                <option value="visit">Visit Entry Record (visits table)</option>
+                                <option value="resident">Resident Information (residents table)</option>
+                                <option value="visitor">Visitor Information (visitors table)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="update_id_select">Choose Existing Record to Modify</label>
+                            <select id="update_id_select" class="form-control" onchange="fetchRecordToPrefill()">
+                                <option value="">-- Choose Record --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <a href="list.html" class="btn btn-outline">
+                                <i class="fa-solid fa-arrow-left"></i> Cancel & Return
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM CONTAINER: Visually changes according to selected entity -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title" id="form-title">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Record
+                        </h3>
+                        <span class="badge badge-inside" id="target-id-badge">Target ID: --</span>
+                    </div>
+
+                    <!-- 1. RESIDENT UPDATE FORM -->
+                    <form id="updateResidentForm" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_res_name">Resident Full Name <span class="required">*</span></label>
+                                <input type="text" id="edit_res_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_res_flat">Flat / Unit Number <span class="required">*</span></label>
+                                <input type="text" id="edit_res_flat" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_res_phone">Mobile Number <span class="required">*</span></label>
+                                <input type="tel" id="edit_res_phone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_res_email">Email Address</label>
+                                <input type="email" id="edit_res_email" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="window.history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Resident Changes
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- 2. VISITOR UPDATE FORM -->
+                    <form id="updateVisitorForm" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_vis_name">Visitor Full Name <span class="required">*</span></label>
+                                <input type="text" id="edit_vis_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_vis_phone">Contact Phone <span class="required">*</span></label>
+                                <input type="tel" id="edit_vis_phone" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_vis_vehicle">Vehicle Registration Number</label>
+                                <input type="text" id="edit_vis_vehicle" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_vis_purpose">Purpose of Visit <span class="required">*</span></label>
+                                <input type="text" id="edit_vis_purpose" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="window.history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Visitor Changes
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- 3. VISIT UPDATE FORM -->
+                    <form id="updateVisitForm" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_visit_resident">Associated Resident / Flat <span class="required">*</span></label>
+                                <select id="edit_visit_resident" class="form-control" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_visit_visitor">Associated Visitor <span class="required">*</span></label>
+                                <select id="edit_visit_visitor" class="form-control" required></select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit_visit_entry">Entry Time (YYYY-MM-DD HH:MM:SS) <span class="required">*</span></label>
+                                <input type="text" id="edit_visit_entry" class="form-control" required>
+                                <div class="form-hint">Standard format: 2026-11-02 14:30:00</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_visit_exit">Exit Time (Leave empty if still inside)</label>
+                                <input type="text" id="edit_visit_exit" class="form-control" placeholder="YYYY-MM-DD HH:MM:SS">
+                                <div class="form-hint">Must not be earlier than entry time.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit_visit_status">Visit Security Status <span class="required">*</span></label>
+                            <select id="edit_visit_status" class="form-control" required>
+                                <option value="Inside">Inside (Currently in premises)</option>
+                                <option value="Completed">Completed (Checked out)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="window.history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Visit Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+
+            <footer class="app-footer">
+                <div>
+                    <strong>GateNest</strong> &copy; 2026 Apartment Visitor Management System.
+                </div>
+                <div>
+                    Direct MySQL Parameterized Updates Active
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentType = "visit";
+        let currentId = null;
+
+        let cachedResidents = [];
+        let cachedVisitors = [];
+        let cachedVisits = [];
+
+        async function initPage() {
+            try {
+                const [rRes, vRes, vtRes] = await Promise.all([
+                    fetch("/api/residents").then(r => r.json()),
+                    fetch("/api/visitors").then(r => r.json()),
+                    fetch("/api/visits").then(r => r.json())
+                ]);
+
+                cachedResidents = rRes.data || [];
+                cachedVisitors = vRes.data || [];
+                cachedVisits = vtRes.data || [];
+
+                // Check URL params
+                const params = new URLSearchParams(window.location.search);
+                const paramType = params.get("type") || "visit";
+                const paramId = params.get("id");
+
+                document.getElementById("update_type_select").value = paramType;
+                currentType = paramType;
+                populateSelector(paramType);
+
+                if (paramId) {
+                    document.getElementById("update_id_select").value = paramId;
+                    currentId = paramId;
+                    fetchRecordToPrefill();
+                } else {
+                    const firstOpt = document.getElementById("update_id_select").options[1];
+                    if (firstOpt) {
+                        document.getElementById("update_id_select").value = firstOpt.value;
+                        currentId = firstOpt.value;
+                        fetchRecordToPrefill();
+                    }
+                }
+            } catch (err) {
+                console.error("Init update page error:", err);
+            }
+        }
+
+        function onTypeChanged() {
+            currentType = document.getElementById("update_type_select").value;
+            populateSelector(currentType);
+            const firstOpt = document.getElementById("update_id_select").options[1];
+            if (firstOpt) {
+                document.getElementById("update_id_select").value = firstOpt.value;
+                currentId = firstOpt.value;
+                fetchRecordToPrefill();
+            }
+        }
+
+        function populateSelector(type) {
+            const select = document.getElementById("update_id_select");
+            select.innerHTML = '<option value="">-- Choose Record --</option>';
+
+            if (type === "resident") {
+                cachedResidents.forEach(r => {
+                    const opt = document.createElement("option");
+                    opt.value = r.resident_id;
+                    opt.textContent = `Resident #${r.resident_id}: ${r.name} (${r.flat_no})`;
+                    select.appendChild(opt);
+                });
+            } else if (type === "visitor") {
+                cachedVisitors.forEach(v => {
+                    const opt = document.createElement("option");
+                    opt.value = v.visitor_id;
+                    opt.textContent = `Visitor #${v.visitor_id}: ${v.name} (${v.phone})`;
+                    select.appendChild(opt);
+                });
+            } else if (type === "visit") {
+                cachedVisits.forEach(vt => {
+                    const opt = document.createElement("option");
+                    opt.value = vt.visit_id;
+                    opt.textContent = `Visit #${vt.visit_id}: ${vt.visitor_name} -> Flat ${vt.flat_no} [${vt.status}]`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        async function fetchRecordToPrefill() {
+            currentId = document.getElementById("update_id_select").value;
+            if (!currentId) return;
+
+            document.getElementById("target-id-badge").textContent = `Target: ${currentType.toUpperCase()} #${currentId}`;
+
+            // Hide all forms first
+            document.getElementById("updateResidentForm").style.display = "none";
+            document.getElementById("updateVisitorForm").style.display = "none";
+            document.getElementById("updateVisitForm").style.display = "none";
+
+            try {
+                if (currentType === "resident") {
+                    const res = await fetch(`/api/residents/${currentId}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        const r = json.data;
+                        document.getElementById("edit_res_name").value = r.name;
+                        document.getElementById("edit_res_flat").value = r.flat_no;
+                        document.getElementById("edit_res_phone").value = r.phone;
+                        document.getElementById("edit_res_email").value = r.email || "";
+
+                        document.getElementById("form-title").innerHTML = `<i class="fa-solid fa-house-user"></i> Edit Resident #${r.resident_id}`;
+                        document.getElementById("updateResidentForm").style.display = "block";
+                    }
+                } else if (currentType === "visitor") {
+                    const res = await fetch(`/api/visitors/${currentId}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        const v = json.data;
+                        document.getElementById("edit_vis_name").value = v.name;
+                        document.getElementById("edit_vis_phone").value = v.phone;
+                        document.getElementById("edit_vis_vehicle").value = v.vehicle_no || "";
+                        document.getElementById("edit_vis_purpose").value = v.purpose;
+
+                        document.getElementById("form-title").innerHTML = `<i class="fa-solid fa-id-badge"></i> Edit Visitor #${v.visitor_id}`;
+                        document.getElementById("updateVisitorForm").style.display = "block";
+                    }
+                } else if (currentType === "visit") {
+                    const res = await fetch(`/api/visits/${currentId}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        const vt = json.data;
+
+                        // Populate dropdowns for associated resident and visitor
+                        const resSelect = document.getElementById("edit_visit_resident");
+                        resSelect.innerHTML = cachedResidents.map(r => 
+                            `<option value="${r.resident_id}" ${r.resident_id === vt.resident_id ? 'selected' : ''}>${r.flat_no} - ${r.name}</option>`
+                        ).join('');
+
+                        const visSelect = document.getElementById("edit_visit_visitor");
+                        visSelect.innerHTML = cachedVisitors.map(v => 
+                            `<option value="${v.visitor_id}" ${v.visitor_id === vt.visitor_id ? 'selected' : ''}>${v.name} (${v.phone})</option>`
+                        ).join('');
+
+                        document.getElementById("edit_visit_entry").value = vt.entry_time;
+                        document.getElementById("edit_visit_exit").value = vt.exit_time || "";
+                        document.getElementById("edit_visit_status").value = vt.status;
+
+                        document.getElementById("form-title").innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> Edit Visit Record #${vt.visit_id}`;
+                        document.getElementById("updateVisitForm").style.display = "block";
+                    }
+                }
+            } catch (err) {
+                console.error("Error prefilling record:", err);
+                showToast("Failed to fetch record from MySQL.", "danger");
+            }
+        }
+
+        // Resident Form Submit
+        document.getElementById("updateResidentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById("edit_res_name").value,
+                flat_no: document.getElementById("edit_res_flat").value,
+                phone: document.getElementById("edit_res_phone").value,
+                email: document.getElementById("edit_res_email").value
+            };
+
+            try {
+                const res = await fetch(`/api/residents/${currentId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    // Update cache and stay on page or navigate
+                } else {
+                    showToast(result.message || "Failed to update resident.", "danger");
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        });
+
+        // Visitor Form Submit
+        document.getElementById("updateVisitorForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById("edit_vis_name").value,
+                phone: document.getElementById("edit_vis_phone").value,
+                vehicle_no: document.getElementById("edit_vis_vehicle").value,
+                purpose: document.getElementById("edit_vis_purpose").value
+            };
+
+            try {
+                const res = await fetch(`/api/visitors/${currentId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                } else {
+                    showToast(result.message || "Failed to update visitor.", "danger");
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        });
+
+        // Visit Form Submit
+        document.getElementById("updateVisitForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const entryTime = document.getElementById("edit_visit_entry").value.trim();
+            const exitTime = document.getElementById("edit_visit_exit").value.trim();
+            const status = document.getElementById("edit_visit_status").value;
+
+            // Date validation
+            if (exitTime && new Date(exitTime) < new Date(entryTime)) {
+                showToast("Validation Error: Exit time cannot be earlier than entry time.", "danger");
+                return;
+            }
+
+            const payload = {
+                resident_id: document.getElementById("edit_visit_resident").value,
+                visitor_id: document.getElementById("edit_visit_visitor").value,
+                entry_time: entryTime,
+                exit_time: exitTime || null,
+                status: status
+            };
+
+            try {
+                const res = await fetch(`/api/visits/${currentId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                } else {
+                    showToast(result.message || "Failed to update visit record.", "danger");
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", initPage);
+    </script>
+</body>
+</html>

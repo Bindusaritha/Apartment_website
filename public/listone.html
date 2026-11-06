@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Details & Pass | GateNest Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @media print {
+            .sidebar, .top-header, .selector-bar, .app-footer, .no-print {
+                display: none !important;
+            }
+            .main-wrapper {
+                margin-left: 0 !important;
+            }
+            .visitor-pass-card {
+                border: 2px solid #000;
+                box-shadow: none;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.svg" alt="GateNest Logo" class="sidebar-logo">
+                <div class="brand-text">
+                    <h1>GateNest</h1>
+                    <span>Visitor Security</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-category">Main Console</li>
+                <li class="menu-item">
+                    <a href="index.html" class="menu-link">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="list.html" class="menu-link">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Residents & Visitors</span>
+                    </a>
+                </li>
+
+                <li class="menu-category">Operations</li>
+                <li class="menu-item">
+                    <a href="listone.html" class="menu-link active">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <span>Visitor Pass & Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="update.html" class="menu-link">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Update Records</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="delete.html" class="menu-link">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Management</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="guard-status-indicator"></div>
+                <div class="guard-status-text">
+                    <strong>Main Gate Security</strong>
+                    <span>MySQL Database Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <header class="top-header">
+                <button class="btn-mobile-menu" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h2>Record Inspector & Digital Pass</h2>
+                    <p>Detailed verification of individual residents, visitors, and security visit logs</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-clock-badge">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="live-clock">Loading clock...</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <!-- Record Selector Bar -->
+                <div class="content-card selector-bar no-print" style="margin-bottom: 24px;">
+                    <div class="form-grid" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="record_type_select">Select Record Entity</label>
+                            <select id="record_type_select" class="form-control" onchange="onTypeChange()">
+                                <option value="visit">Visit Security Log (Pass View)</option>
+                                <option value="resident">Resident Profile & Visitor History</option>
+                                <option value="visitor">Visitor Profile & Visit Logs</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="record_id_select">Select Specific Record</label>
+                            <select id="record_id_select" class="form-control" onchange="loadCurrentSelection()">
+                                <option value="">-- Choose Record --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline" onclick="window.history.back()">
+                                <i class="fa-solid fa-arrow-left"></i> Back to Lists
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Display Container -->
+                <div id="record-display-area">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <h4>Loading Record Details...</h4>
+                        <p>Fetching relational database information from MySQL...</p>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="app-footer">
+                <div>
+                    <strong>GateNest</strong> &copy; 2026 Apartment Visitor Management System.
+                </div>
+                <div>
+                    Live Relational Inspection: <code>residents</code> &bull; <code>visitors</code> &bull; <code>visits</code>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let allResidents = [];
+        let allVisitors = [];
+        let allVisits = [];
+
+        async function initData() {
+            try {
+                const [rRes, vRes, vtRes] = await Promise.all([
+                    fetch("/api/residents").then(r => r.json()),
+                    fetch("/api/visitors").then(r => r.json()),
+                    fetch("/api/visits").then(r => r.json())
+                ]);
+
+                allResidents = rRes.data || [];
+                allVisitors = vRes.data || [];
+                allVisits = vtRes.data || [];
+
+                // Check URL params
+                const params = new URLSearchParams(window.location.search);
+                const type = params.get("type") || "visit";
+                const id = params.get("id");
+
+                document.getElementById("record_type_select").value = type;
+                populateIdSelector(type);
+
+                if (id) {
+                    document.getElementById("record_id_select").value = id;
+                    loadRecord(type, id);
+                } else {
+                    // Default to first item if available
+                    const firstOption = document.getElementById("record_id_select").options[1];
+                    if (firstOption) {
+                        document.getElementById("record_id_select").value = firstOption.value;
+                        loadRecord(type, firstOption.value);
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading initialization data:", err);
+            }
+        }
+
+        function onTypeChange() {
+            const type = document.getElementById("record_type_select").value;
+            populateIdSelector(type);
+            const firstOption = document.getElementById("record_id_select").options[1];
+            if (firstOption) {
+                document.getElementById("record_id_select").value = firstOption.value;
+                loadRecord(type, firstOption.value);
+            }
+        }
+
+        function populateIdSelector(type) {
+            const select = document.getElementById("record_id_select");
+            select.innerHTML = '<option value="">-- Choose Record --</option>';
+
+            if (type === "visit") {
+                allVisits.forEach(v => {
+                    const opt = document.createElement("option");
+                    opt.value = v.visit_id;
+                    opt.textContent = `Visit #${v.visit_id}: ${v.visitor_name} -> Flat ${v.flat_no} (${v.status})`;
+                    select.appendChild(opt);
+                });
+            } else if (type === "resident") {
+                allResidents.forEach(r => {
+                    const opt = document.createElement("option");
+                    opt.value = r.resident_id;
+                    opt.textContent = `Resident #${r.resident_id}: ${r.name} (Flat ${r.flat_no})`;
+                    select.appendChild(opt);
+                });
+            } else if (type === "visitor") {
+                allVisitors.forEach(vis => {
+                    const opt = document.createElement("option");
+                    opt.value = vis.visitor_id;
+                    opt.textContent = `Visitor #${vis.visitor_id}: ${vis.name} (${vis.phone})`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function loadCurrentSelection() {
+            const type = document.getElementById("record_type_select").value;
+            const id = document.getElementById("record_id_select").value;
+            if (id) {
+                loadRecord(type, id);
+            }
+        }
+
+        async function loadRecord(type, id) {
+            const container = document.getElementById("record-display-area");
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <h4>Loading Details for ${type} #${id}...</h4>
+                </div>
+            `;
+
+            try {
+                if (type === "visit") {
+                    const res = await fetch(`/api/visits/${id}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        renderVisitPass(json.data);
+                    } else {
+                        container.innerHTML = `<div class="empty-state"><h4>Visit #${id} not found.</h4></div>`;
+                    }
+                } else if (type === "resident") {
+                    const res = await fetch(`/api/residents/${id}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        renderResidentProfile(json.data);
+                    } else {
+                        container.innerHTML = `<div class="empty-state"><h4>Resident #${id} not found.</h4></div>`;
+                    }
+                } else if (type === "visitor") {
+                    const res = await fetch(`/api/visitors/${id}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        renderVisitorProfile(json.data);
+                    } else {
+                        container.innerHTML = `<div class="empty-state"><h4>Visitor #${id} not found.</h4></div>`;
+                    }
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state text-danger"><h4>Failed to retrieve record from MySQL.</h4></div>`;
+            }
+        }
+
+        // 1. Render Digital Visitor Pass Card
+        function renderVisitPass(v) {
+            const container = document.getElementById("record-display-area");
+            container.innerHTML = `
+                <div class="visitor-pass-card">
+                    <div class="pass-header">
+                        <div class="pass-header-info">
+                            <h2>GateNest Official Visitor Pass</h2>
+                            <p>Apartment Security Access Clearance</p>
+                        </div>
+                        <div class="pass-badge-id">
+                            PASS #${v.visit_id}
+                        </div>
+                    </div>
+
+                    <div class="pass-body">
+                        <div class="pass-grid">
+                            <div>
+                                <div class="pass-field-label">Visitor Full Name</div>
+                                <div class="pass-field-value">${v.visitor_name}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Visitor Contact Phone</div>
+                                <div class="pass-field-value">${v.visitor_phone}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Visiting Flat & Resident</div>
+                                <div class="pass-field-value">
+                                    <span class="badge badge-flat" style="font-size: 1rem;">${v.flat_no}</span>
+                                    ${v.resident_name}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Resident Phone</div>
+                                <div class="pass-field-value">${v.resident_phone || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Vehicle Registration</div>
+                                <div class="pass-field-value">${v.vehicle_no || '<span class="text-muted">No Vehicle / Walk-in</span>'}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Purpose of Visit</div>
+                                <div class="pass-field-value">${v.purpose}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Check-In Timestamp (Entry)</div>
+                                <div class="pass-field-value">${formatDateTime(v.entry_time)}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Check-Out Timestamp (Exit)</div>
+                                <div class="pass-field-value">${formatDateTime(v.exit_time)}</div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Current Security Status</div>
+                                <div class="pass-field-value">
+                                    <span class="badge ${v.status === 'Inside' ? 'badge-inside' : 'badge-completed'}" style="font-size: 0.95rem; padding: 6px 14px;">
+                                        ${v.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="pass-field-label">Database Relational Keys</div>
+                                <div class="pass-field-value" style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    Resident ID: #${v.resident_id} | Visitor ID: #${v.visitor_id}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pass-footer no-print">
+                        <div class="table-actions">
+                            <a href="update.html?type=visit&id=${v.visit_id}" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-pen"></i> Edit Log
+                            </a>
+                            <a href="delete.html?type=visit&id=${v.visit_id}" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash-can"></i> Delete
+                            </a>
+                            ${v.status === 'Inside' ? `
+                                <button class="btn btn-primary btn-sm" onclick="checkoutVisit(${v.visit_id})">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Record Check Out
+                                </button>
+                            ` : ''}
+                        </div>
+                        <button class="btn btn-outline" onclick="window.print()">
+                            <i class="fa-solid fa-print"></i> Print Security Pass
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. Render Resident Profile
+        function renderResidentProfile(r) {
+            const container = document.getElementById("record-display-area");
+            const visits = r.visits || [];
+
+            container.innerHTML = `
+                <div class="content-card" style="margin-bottom: 24px;">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-house-user"></i> Resident Profile: ${r.name}
+                        </h3>
+                        <div>
+                            <a href="update.html?type=resident&id=${r.resident_id}" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-pen"></i> Edit Resident
+                            </a>
+                            <a href="delete.html?type=resident&id=${r.resident_id}" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash-can"></i> Delete Resident
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pass-grid" style="margin-bottom: 20px;">
+                        <div>
+                            <div class="pass-field-label">Resident ID</div>
+                            <div class="pass-field-value">#${r.resident_id}</div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Flat / Unit Number</div>
+                            <div class="pass-field-value"><span class="badge badge-flat">${r.flat_no}</span></div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Mobile Contact</div>
+                            <div class="pass-field-value">${r.phone}</div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Email Address</div>
+                            <div class="pass-field-value">${r.email || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Visitor History for Flat ${r.flat_no} (${visits.length} Visits)
+                        </h3>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Visit ID</th>
+                                    <th>Visitor Name</th>
+                                    <th>Visitor Phone</th>
+                                    <th>Vehicle No</th>
+                                    <th>Purpose</th>
+                                    <th>Entry Time</th>
+                                    <th>Exit Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${visits.length === 0 ? `
+                                    <tr>
+                                        <td colspan="8" class="empty-state">
+                                            <p>No visitor entries recorded for this resident yet.</p>
+                                        </td>
+                                    </tr>
+                                ` : visits.map(v => `
+                                    <tr>
+                                        <td><strong>#${v.visit_id}</strong></td>
+                                        <td><strong>${v.visitor_name}</strong></td>
+                                        <td>${v.visitor_phone}</td>
+                                        <td>${v.vehicle_no || '<span class="text-muted">None</span>'}</td>
+                                        <td>${v.purpose}</td>
+                                        <td>${formatDateTime(v.entry_time)}</td>
+                                        <td>${formatDateTime(v.exit_time)}</td>
+                                        <td><span class="badge ${v.status === 'Inside' ? 'badge-inside' : 'badge-completed'}">${v.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. Render Visitor Profile
+        function renderVisitorProfile(vis) {
+            const container = document.getElementById("record-display-area");
+            const visits = vis.visits || [];
+
+            container.innerHTML = `
+                <div class="content-card" style="margin-bottom: 24px;">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-id-badge"></i> Visitor Profile: ${vis.name}
+                        </h3>
+                        <div>
+                            <a href="update.html?type=visitor&id=${vis.visitor_id}" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-pen"></i> Edit Profile
+                            </a>
+                            <a href="delete.html?type=visitor&id=${vis.visitor_id}" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash-can"></i> Delete Profile
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pass-grid" style="margin-bottom: 20px;">
+                        <div>
+                            <div class="pass-field-label">Visitor ID</div>
+                            <div class="pass-field-value">#${vis.visitor_id}</div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Primary Contact Phone</div>
+                            <div class="pass-field-value">${vis.phone}</div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Registered Vehicle</div>
+                            <div class="pass-field-value">${vis.vehicle_no ? `<span class="badge badge-flat">${vis.vehicle_no}</span>` : '<span class="text-muted">None</span>'}</div>
+                        </div>
+                        <div>
+                            <div class="pass-field-label">Standard Purpose</div>
+                            <div class="pass-field-value">${vis.purpose}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-list-check"></i> Visits Logged by this Visitor (${visits.length} Visits)
+                        </h3>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Visit ID</th>
+                                    <th>Resident Name</th>
+                                    <th>Flat Number</th>
+                                    <th>Entry Time</th>
+                                    <th>Exit Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${visits.length === 0 ? `
+                                    <tr>
+                                        <td colspan="6" class="empty-state">
+                                            <p>No visit records recorded for this visitor.</p>
+                                        </td>
+                                    </tr>
+                                ` : visits.map(v => `
+                                    <tr>
+                                        <td><strong>#${v.visit_id}</strong></td>
+                                        <td><strong>${v.resident_name}</strong></td>
+                                        <td><span class="badge badge-flat">${v.flat_no}</span></td>
+                                        <td>${formatDateTime(v.entry_time)}</td>
+                                        <td>${formatDateTime(v.exit_time)}</td>
+                                        <td><span class="badge ${v.status === 'Inside' ? 'badge-inside' : 'badge-completed'}">${v.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", initData);
+    </script>
+</body>
+</html>

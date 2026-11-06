@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Management | GateNest Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.svg" alt="GateNest Logo" class="sidebar-logo">
+                <div class="brand-text">
+                    <h1>GateNest</h1>
+                    <span>Visitor Security</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-category">Main Console</li>
+                <li class="menu-item">
+                    <a href="index.html" class="menu-link">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="list.html" class="menu-link">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Residents & Visitors</span>
+                    </a>
+                </li>
+
+                <li class="menu-category">Operations</li>
+                <li class="menu-item">
+                    <a href="listone.html" class="menu-link">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <span>Visitor Pass & Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="update.html" class="menu-link">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Update Records</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="delete.html" class="menu-link active">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Management</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="guard-status-indicator"></div>
+                <div class="guard-status-text">
+                    <strong>Main Gate Security</strong>
+                    <span>MySQL Database Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-wrapper">
+            <header class="top-header">
+                <button class="btn-mobile-menu" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h2>Record Deletion & Safety Console</h2>
+                    <p>Controlled record deletion with MySQL Foreign Key Protection (ON DELETE RESTRICT)</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-clock-badge">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="live-clock">Loading clock...</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content">
+                <!-- Relational Integrity Safety Alert -->
+                <div class="danger-box">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <div>
+                        <h4>Relational Integrity & Safety Notice</h4>
+                        <p>This application enforces MySQL InnoDB <code>ON DELETE RESTRICT</code> constraints on foreign keys. Residents or visitors who have existing visit logs cannot be deleted to preserve accurate building security audit history. To delete a resident or visitor profile, their linked visit records must be resolved first.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION 1: DELETE RESIDENTS -->
+                <div class="delete-section-card">
+                    <div class="delete-section-header">
+                        <h3><i class="fa-solid fa-house-user" style="color: var(--danger);"></i> 1. Delete Resident Record</h3>
+                        <span class="badge badge-completed">Protected Table: residents</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
+                        Select or enter a resident's ID to delete their account. If this flat has past visitor logs, the system will prevent deletion and display a detailed explanation.
+                    </p>
+
+                    <div class="form-grid" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="delete_resident_select">Choose Resident to Delete</label>
+                            <select id="delete_resident_select" class="form-control">
+                                <option value="">-- Choose Resident --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-danger" onclick="triggerDeleteResident()">
+                                <i class="fa-solid fa-trash-can"></i> Delete Resident
+                            </button>
+                        </div>
+                    </div>
+                    <div id="res-delete-feedback" style="margin-top: 14px;"></div>
+                </div>
+
+                <!-- SECTION 2: DELETE VISITORS -->
+                <div class="delete-section-card">
+                    <div class="delete-section-header">
+                        <h3><i class="fa-solid fa-user-xmark" style="color: var(--danger);"></i> 2. Delete Visitor Profile</h3>
+                        <span class="badge badge-completed">Protected Table: visitors</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
+                        Select or search for a registered visitor profile. The database constraint ensures visitors with registered visit entries cannot be deleted accidentally.
+                    </p>
+
+                    <div class="form-grid" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="delete_visitor_select">Choose Visitor to Delete</label>
+                            <select id="delete_visitor_select" class="form-control">
+                                <option value="">-- Choose Visitor --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-danger" onclick="triggerDeleteVisitor()">
+                                <i class="fa-solid fa-trash-can"></i> Delete Visitor
+                            </button>
+                        </div>
+                    </div>
+                    <div id="vis-delete-feedback" style="margin-top: 14px;"></div>
+                </div>
+
+                <!-- SECTION 3: DELETE VISIT LOGS -->
+                <div class="delete-section-card">
+                    <div class="delete-section-header">
+                        <h3><i class="fa-solid fa-file-excel" style="color: var(--danger);"></i> 3. Delete Specific Visit Record</h3>
+                        <span class="badge badge-inside">Parent Table: visits</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
+                        Individual visit records can be removed by security supervisors if entered erroneously.
+                    </p>
+
+                    <div class="form-grid" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="delete_visit_select">Choose Visit Record</label>
+                            <select id="delete_visit_select" class="form-control">
+                                <option value="">-- Choose Visit Record --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-danger" onclick="triggerDeleteVisit()">
+                                <i class="fa-solid fa-trash-can"></i> Delete Visit Record
+                            </button>
+                        </div>
+                    </div>
+                    <div id="visit-delete-feedback" style="margin-top: 14px;"></div>
+                </div>
+            </main>
+
+            <footer class="app-footer">
+                <div>
+                    <strong>GateNest</strong> &copy; 2026 Apartment Visitor Management System.
+                </div>
+                <div>
+                    MySQL Foreign Keys Enforcement Active: <code>ON DELETE RESTRICT</code>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Confirm Deletion</h3>
+                <button class="modal-close-btn" onclick="closeModal('confirmDeleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmDeleteMessage" style="font-size: 1rem; color: var(--text-primary); margin-bottom: 20px;">
+                    Are you sure you want to delete this record? This action will permanently affect the MySQL database.
+                </p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('confirmDeleteModal')">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteExecuteBtn">
+                        <i class="fa-solid fa-trash"></i> Yes, Delete Record
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let pendingDeleteAction = null;
+
+        // Load Select Options for all three tables
+        async function loadSelectors() {
+            // Residents
+            try {
+                const res = await fetch("/api/residents");
+                const json = await res.json();
+                if (json.success) {
+                    const sel = document.getElementById("delete_resident_select");
+                    sel.innerHTML = '<option value="">-- Choose Resident --</option>' + 
+                        json.data.map(r => `<option value="${r.resident_id}">${r.resident_id}: ${r.name} (Flat ${r.flat_no}, ${r.total_visits} visits)</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+
+            // Visitors
+            try {
+                const res = await fetch("/api/visitors");
+                const json = await res.json();
+                if (json.success) {
+                    const sel = document.getElementById("delete_visitor_select");
+                    sel.innerHTML = '<option value="">-- Choose Visitor --</option>' + 
+                        json.data.map(v => `<option value="${v.visitor_id}">${v.visitor_id}: ${v.name} (${v.phone}, ${v.total_visits} visits)</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+
+            // Visits
+            try {
+                const res = await fetch("/api/visits");
+                const json = await res.json();
+                if (json.success) {
+                    const sel = document.getElementById("delete_visit_select");
+                    sel.innerHTML = '<option value="">-- Choose Visit Record --</option>' + 
+                        json.data.map(vt => `<option value="${vt.visit_id}">Visit #${vt.visit_id}: ${vt.visitor_name} visited Flat ${vt.flat_no} [${vt.status}]</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Trigger Resident Delete Confirmation
+        function triggerDeleteResident() {
+            const select = document.getElementById("delete_resident_select");
+            const id = select.value;
+            if (!id) {
+                showToast("Please choose a resident to delete.", "warning");
+                return;
+            }
+            const text = select.options[select.selectedIndex].text;
+
+            document.getElementById("confirmDeleteMessage").innerHTML = `
+                Are you sure you want to delete resident <strong>${text}</strong>?<br><br>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                    MySQL will verify whether visit records are linked to this resident. If visits exist, the deletion will be safely restricted.
+                </span>
+            `;
+
+            pendingDeleteAction = () => executeDeleteResident(id);
+            openModal("confirmDeleteModal");
+        }
+
+        // Execute Resident Delete
+        async function executeDeleteResident(id) {
+            closeModal("confirmDeleteModal");
+            const feedbackEl = document.getElementById("res-delete-feedback");
+            feedbackEl.innerHTML = `<span class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Processing deletion request in MySQL...</span>`;
+
+            try {
+                const res = await fetch(`/api/residents/${id}`, { method: "DELETE" });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    feedbackEl.innerHTML = `<div class="badge badge-inside" style="padding: 8px 14px;"><i class="fa-solid fa-check"></i> ${result.message}</div>`;
+                    loadSelectors();
+                } else {
+                    showToast(result.message || "Cannot delete resident.", "danger");
+                    feedbackEl.innerHTML = `
+                        <div class="danger-box" style="margin-top: 10px;">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <div>
+                                <h4>Delete Operation Restricted</h4>
+                                <p>${result.message}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        }
+
+        // Trigger Visitor Delete Confirmation
+        function triggerDeleteVisitor() {
+            const select = document.getElementById("delete_visitor_select");
+            const id = select.value;
+            if (!id) {
+                showToast("Please choose a visitor to delete.", "warning");
+                return;
+            }
+            const text = select.options[select.selectedIndex].text;
+
+            document.getElementById("confirmDeleteMessage").innerHTML = `
+                Are you sure you want to delete visitor <strong>${text}</strong>?<br><br>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                    If this visitor has any recorded visits in the database, MySQL ON DELETE RESTRICT will prevent deletion.
+                </span>
+            `;
+
+            pendingDeleteAction = () => executeDeleteVisitor(id);
+            openModal("confirmDeleteModal");
+        }
+
+        async function executeDeleteVisitor(id) {
+            closeModal("confirmDeleteModal");
+            const feedbackEl = document.getElementById("vis-delete-feedback");
+            feedbackEl.innerHTML = `<span class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Processing deletion in MySQL...</span>`;
+
+            try {
+                const res = await fetch(`/api/visitors/${id}`, { method: "DELETE" });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    feedbackEl.innerHTML = `<div class="badge badge-inside" style="padding: 8px 14px;"><i class="fa-solid fa-check"></i> ${result.message}</div>`;
+                    loadSelectors();
+                } else {
+                    showToast(result.message || "Cannot delete visitor.", "danger");
+                    feedbackEl.innerHTML = `
+                        <div class="danger-box" style="margin-top: 10px;">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <div>
+                                <h4>Delete Operation Restricted</h4>
+                                <p>${result.message}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        }
+
+        // Trigger Visit Record Delete
+        function triggerDeleteVisit() {
+            const select = document.getElementById("delete_visit_select");
+            const id = select.value;
+            if (!id) {
+                showToast("Please choose a visit record to delete.", "warning");
+                return;
+            }
+            const text = select.options[select.selectedIndex].text;
+
+            document.getElementById("confirmDeleteMessage").innerHTML = `
+                Are you sure you want to delete <strong>${text}</strong>?<br><br>
+                <span style="font-size: 0.85rem; color: var(--danger);">
+                    Warning: This will permanently delete this specific visitor entry log from the visits table.
+                </span>
+            `;
+
+            pendingDeleteAction = () => executeDeleteVisit(id);
+            openModal("confirmDeleteModal");
+        }
+
+        async function executeDeleteVisit(id) {
+            closeModal("confirmDeleteModal");
+            const feedbackEl = document.getElementById("visit-delete-feedback");
+            feedbackEl.innerHTML = `<span class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Deleting visit record...</span>`;
+
+            try {
+                const res = await fetch(`/api/visits/${id}`, { method: "DELETE" });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    feedbackEl.innerHTML = `<div class="badge badge-inside" style="padding: 8px 14px;"><i class="fa-solid fa-check"></i> ${result.message}</div>`;
+                    loadSelectors();
+                } else {
+                    showToast(result.message || "Failed to delete visit.", "danger");
+                    feedbackEl.innerHTML = `<div class="text-danger">${result.message}</div>`;
+                }
+            } catch (err) {
+                showToast("Network error.", "danger");
+            }
+        }
+
+        // Attach confirmation executor
+        document.getElementById("confirmDeleteExecuteBtn").addEventListener("click", () => {
+            if (typeof pendingDeleteAction === "function") {
+                pendingDeleteAction();
+            }
+        });
+
+        // Preload based on URL params (e.g. ?type=resident&id=1)
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSelectors().then(() => {
+                const params = new URLSearchParams(window.location.search);
+                const type = params.get("type");
+                const id = params.get("id");
+
+                if (type === "resident" && id) {
+                    const sel = document.getElementById("delete_resident_select");
+                    sel.value = id;
+                    triggerDeleteResident();
+                } else if (type === "visitor" && id) {
+                    const sel = document.getElementById("delete_visitor_select");
+                    sel.value = id;
+                    triggerDeleteVisitor();
+                } else if (type === "visit" && id) {
+                    const sel = document.getElementById("delete_visit_select");
+                    sel.value = id;
+                    triggerDeleteVisit();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

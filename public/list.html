@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory & Lists | GateNest Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.svg" alt="GateNest Logo" class="sidebar-logo">
+                <div class="brand-text">
+                    <h1>GateNest</h1>
+                    <span>Visitor Security</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-category">Main Console</li>
+                <li class="menu-item">
+                    <a href="index.html" class="menu-link">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="list.html" class="menu-link active">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Residents & Visitors</span>
+                    </a>
+                </li>
+
+                <li class="menu-category">Operations</li>
+                <li class="menu-item">
+                    <a href="listone.html" class="menu-link">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <span>Visitor Pass & Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="update.html" class="menu-link">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Update Records</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="delete.html" class="menu-link">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Management</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="guard-status-indicator"></div>
+                <div class="guard-status-text">
+                    <strong>Main Gate Security</strong>
+                    <span>MySQL Database Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Header -->
+            <header class="top-header">
+                <button class="btn-mobile-menu" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h2>Directory Management</h2>
+                    <p>Comprehensive Residents & Visitors Records</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-clock-badge">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="live-clock">Loading clock...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="page-content">
+                <!-- Navigation Tabs -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" id="tab-residents-btn" onclick="switchTab('residents')">
+                        <i class="fa-solid fa-house-user"></i> Resident Management
+                    </button>
+                    <button class="tab-btn" id="tab-visitors-btn" onclick="switchTab('visitors')">
+                        <i class="fa-solid fa-id-badge"></i> Visitor Management
+                    </button>
+                </div>
+
+                <!-- TAB SECTION A: RESIDENTS -->
+                <section id="section-residents" class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-users"></i> Registered Residents Directory
+                        </h3>
+                        <button class="btn btn-primary" onclick="openModal('addResidentModal')">
+                            <i class="fa-solid fa-user-plus"></i> Add Resident
+                        </button>
+                    </div>
+
+                    <!-- Search Filter Bar -->
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search-residents" placeholder="Search by name, flat number, phone, email..." oninput="onResidentSearch()">
+                        </div>
+                        <span id="resident-count-badge" class="badge badge-inside">Loading records...</span>
+                    </div>
+
+                    <!-- Residents Table -->
+                    <div class="table-responsive">
+                        <table class="custom-table" id="residents-table">
+                            <thead>
+                                <tr>
+                                    <th>Resident ID</th>
+                                    <th>Full Name</th>
+                                    <th>Flat Number</th>
+                                    <th>Phone Number</th>
+                                    <th>Email Address</th>
+                                    <th>Total Visits</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="residents-tbody">
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                        <p>Loading residents from MySQL database...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- TAB SECTION B: VISITORS -->
+                <section id="section-visitors" class="content-card" style="display: none;">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-address-card"></i> Visitor Log Directory
+                        </h3>
+                        <button class="btn btn-primary" onclick="openModal('registerVisitorModal')">
+                            <i class="fa-solid fa-user-plus"></i> Register Visitor
+                        </button>
+                    </div>
+
+                    <!-- Search Filter Bar -->
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search-visitors" placeholder="Search by name, phone, vehicle, purpose..." oninput="onVisitorSearch()">
+                        </div>
+                        <span id="visitor-count-badge" class="badge badge-inside">Loading records...</span>
+                    </div>
+
+                    <!-- Visitors Table -->
+                    <div class="table-responsive">
+                        <table class="custom-table" id="visitors-table">
+                            <thead>
+                                <tr>
+                                    <th>Visitor ID</th>
+                                    <th>Full Name</th>
+                                    <th>Contact Phone</th>
+                                    <th>Vehicle Number</th>
+                                    <th>Purpose</th>
+                                    <th>Total Visits</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitors-tbody">
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                        <p>Loading visitors from MySQL database...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div>
+                    <strong>GateNest</strong> &copy; 2026 Apartment Visitor Management System.
+                </div>
+                <div>
+                    Connected to MySQL Database: <code>apartment_visitor_management</code>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- MODAL 1: Add Resident -->
+    <div class="modal-overlay" id="addResidentModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-house-user" style="color: var(--brand-primary);"></i> Add New Resident</h3>
+                <button class="modal-close-btn" onclick="closeModal('addResidentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addResidentForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="res_name">Resident Name <span class="required">*</span></label>
+                            <input type="text" id="res_name" class="form-control" placeholder="e.g. Dr. Rajesh Sharma" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res_flat">Flat Number <span class="required">*</span></label>
+                            <input type="text" id="res_flat" class="form-control" placeholder="e.g. A-101" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="res_phone">Mobile Number <span class="required">*</span></label>
+                            <input type="tel" id="res_phone" class="form-control" placeholder="e.g. 9876543210" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res_email">Email Address</label>
+                            <input type="email" id="res_email" class="form-control" placeholder="e.g. rajesh@gmail.com">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('addResidentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Resident</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Register Visitor Profile -->
+    <div class="modal-overlay" id="registerVisitorModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-address-card" style="color: var(--brand-primary);"></i> Register New Visitor</h3>
+                <button class="modal-close-btn" onclick="closeModal('registerVisitorModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerVisitorForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="vis_name">Visitor Name <span class="required">*</span></label>
+                            <input type="text" id="vis_name" class="form-control" placeholder="e.g. Amit Patil" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="vis_phone">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="vis_phone" class="form-control" placeholder="e.g. 9123456780" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="vis_vehicle">Vehicle Number (Optional)</label>
+                            <input type="text" id="vis_vehicle" class="form-control" placeholder="e.g. MH-12-AB-1234">
+                        </div>
+                        <div class="form-group">
+                            <label for="vis_purpose">Purpose of Visit <span class="required">*</span></label>
+                            <input type="text" id="vis_purpose" class="form-control" placeholder="e.g. Package Delivery / Maintenance" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('registerVisitorModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Register Visitor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Tab switching logic
+        function switchTab(tab) {
+            const resSection = document.getElementById("section-residents");
+            const visSection = document.getElementById("section-visitors");
+            const resBtn = document.getElementById("tab-residents-btn");
+            const visBtn = document.getElementById("tab-visitors-btn");
+
+            if (tab === "visitors") {
+                resSection.style.display = "none";
+                visSection.style.display = "block";
+                resBtn.classList.remove("active");
+                visBtn.classList.add("active");
+                loadVisitors();
+            } else {
+                resSection.style.display = "block";
+                visSection.style.display = "none";
+                resBtn.classList.add("active");
+                visBtn.classList.remove("active");
+                loadResidents();
+            }
+        }
+
+        // Search debounce
+        let searchTimeout;
+        function onResidentSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = document.getElementById("search-residents").value.trim();
+                loadResidents(query);
+            }, 300);
+        }
+
+        function onVisitorSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = document.getElementById("search-visitors").value.trim();
+                loadVisitors(query);
+            }, 300);
+        }
+
+        // Load Residents from MySQL
+        async function loadResidents(search = "") {
+            const tbody = document.getElementById("residents-tbody");
+            try {
+                const url = search ? `/api/residents?search=${encodeURIComponent(search)}` : "/api/residents";
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById("resident-count-badge").textContent = `${data.count} Total Residents`;
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fa-solid fa-user-slash"></i>
+                                    <h4>No Residents Found</h4>
+                                    <p>${search ? 'No residents matched your search query.' : 'No residents have been added yet.'}</p>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = data.data.map(r => `
+                        <tr>
+                            <td><strong>#${r.resident_id}</strong></td>
+                            <td><strong>${r.name}</strong></td>
+                            <td><span class="badge badge-flat">${r.flat_no}</span></td>
+                            <td>${r.phone}</td>
+                            <td>${r.email || '<span class="text-muted">N/A</span>'}</td>
+                            <td><span class="badge ${r.total_visits > 0 ? 'badge-inside' : 'badge-completed'}">${r.total_visits} visits</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="listone.html?type=resident&id=${r.resident_id}" class="icon-btn" title="View Resident Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a href="update.html?type=resident&id=${r.resident_id}" class="icon-btn" title="Edit Resident">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <a href="delete.html?type=resident&id=${r.resident_id}" class="icon-btn btn-delete" title="Delete Resident">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error loading residents:", err);
+                tbody.innerHTML = `<tr><td colspan="7" class="text-danger" style="text-align:center; padding:20px;">Failed to load residents from MySQL backend.</td></tr>`;
+            }
+        }
+
+        // Load Visitors from MySQL
+        async function loadVisitors(search = "") {
+            const tbody = document.getElementById("visitors-tbody");
+            try {
+                const url = search ? `/api/visitors?search=${encodeURIComponent(search)}` : "/api/visitors";
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById("visitor-count-badge").textContent = `${data.count} Registered Visitors`;
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fa-solid fa-address-card"></i>
+                                    <h4>No Visitors Found</h4>
+                                    <p>${search ? 'No visitor records matched your search query.' : 'No visitors have registered yet.'}</p>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = data.data.map(v => `
+                        <tr>
+                            <td><strong>#${v.visitor_id}</strong></td>
+                            <td><strong>${v.name}</strong></td>
+                            <td>${v.phone}</td>
+                            <td>${v.vehicle_no ? `<span class="badge badge-flat">${v.vehicle_no}</span>` : '<span class="text-muted">None</span>'}</td>
+                            <td>${v.purpose}</td>
+                            <td><span class="badge ${v.total_visits > 0 ? 'badge-inside' : 'badge-completed'}">${v.total_visits} visits</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="listone.html?type=visitor&id=${v.visitor_id}" class="icon-btn" title="View Profile">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a href="update.html?type=visitor&id=${v.visitor_id}" class="icon-btn" title="Edit Visitor">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <a href="delete.html?type=visitor&id=${v.visitor_id}" class="icon-btn btn-delete" title="Delete Visitor">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error loading visitors:", err);
+                tbody.innerHTML = `<tr><td colspan="7" class="text-danger" style="text-align:center; padding:20px;">Failed to load visitors from MySQL backend.</td></tr>`;
+            }
+        }
+
+        // Add Resident Submit
+        document.getElementById("addResidentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById("res_name").value,
+                flat_no: document.getElementById("res_flat").value,
+                phone: document.getElementById("res_phone").value,
+                email: document.getElementById("res_email").value
+            };
+
+            try {
+                const res = await fetch("/api/residents", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    closeModal("addResidentModal");
+                    document.getElementById("addResidentForm").reset();
+                    loadResidents();
+                } else {
+                    showToast(result.message || "Failed to add resident.", "danger");
+                }
+            } catch (err) {
+                showToast("Network connection error.", "danger");
+            }
+        });
+
+        // Register Visitor Submit
+        document.getElementById("registerVisitorForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById("vis_name").value,
+                phone: document.getElementById("vis_phone").value,
+                vehicle_no: document.getElementById("vis_vehicle").value,
+                purpose: document.getElementById("vis_purpose").value
+            };
+
+            try {
+                const res = await fetch("/api/visitors", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    closeModal("registerVisitorModal");
+                    document.getElementById("registerVisitorForm").reset();
+                    loadVisitors();
+                } else {
+                    showToast(result.message || "Failed to register visitor.", "danger");
+                }
+            } catch (err) {
+                showToast("Network connection error.", "danger");
+            }
+        });
+
+        // Handle URL query ?tab=visitors
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("tab") === "visitors") {
+                switchTab("visitors");
+            } else {
+                loadResidents();
+            }
+        });
+    </script>
+</body>
+</html>

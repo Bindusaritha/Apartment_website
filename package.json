@@ -1,0 +1,27 @@
+{
+  "name": "apartment-visitor-management-system",
+  "version": "1.0.0",
+  "description": "GateNest - Professional Apartment Visitor Management System with MySQL Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "init-db": "node init_db.js"
+  },
+  "keywords": [
+    "apartment",
+    "visitor-management",
+    "fsd",
+    "mysql",
+    "express",
+    "fullstack"
+  ],
+  "author": "B.Tech Computer Science Student",
+  "license": "ISC",
+  "dependencies": {
+    "apartment-visitor-management-system": "file:",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

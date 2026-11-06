@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GateNest | Smart Apartment Visitor Security System</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.svg" alt="GateNest Logo" class="sidebar-logo">
+                <div class="brand-text">
+                    <h1>GateNest</h1>
+                    <span>Visitor Security</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="menu-category">Main Console</li>
+                <li class="menu-item">
+                    <a href="index.html" class="menu-link active">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="list.html" class="menu-link">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Residents & Visitors</span>
+                    </a>
+                </li>
+
+                <li class="menu-category">Operations</li>
+                <li class="menu-item">
+                    <a href="listone.html" class="menu-link">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <span>Visitor Pass & Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="update.html" class="menu-link">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Update Records</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="delete.html" class="menu-link">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Management</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="guard-status-indicator"></div>
+                <div class="guard-status-text">
+                    <strong>Main Gate Security</strong>
+                    <span>MySQL Database Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <button class="btn-mobile-menu" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <h2>Apartment Security Control Desk</h2>
+                    <p>Real-time Visitor Tracking & Resident Directory</p>
+                </div>
+                <div class="header-actions">
+                    <div class="live-clock-badge">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="live-clock">Loading clock...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <main class="page-content">
+                <!-- Welcome Banner with Image -->
+                <section class="dashboard-banner">
+                    <img src="images/apartment-banner.jpg" alt="Apartment Complex" class="banner-img-bg">
+                    <div class="banner-content">
+                        <div class="banner-badge">
+                            <i class="fa-solid fa-shield-halved"></i> GATENEST SMART SECURITY
+                        </div>
+                        <h2>Smart Visitor & Access Management System</h2>
+                        <p>Streamlined visitor registration, automated entry logging, and real-time resident security verification powered by MySQL.</p>
+                        <div class="banner-btn-group">
+                            <button class="btn btn-primary" onclick="openModal('quickCheckInModal')">
+                                <i class="fa-solid fa-user-plus"></i> Fast Visitor Check-In
+                            </button>
+                            <button class="btn btn-outline-white" onclick="openModal('addResidentModal')">
+                                <i class="fa-solid fa-house-user"></i> Add Resident
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dynamic Statistics Cards Grid -->
+                <section class="stats-grid">
+                    <div class="stat-card card-blue">
+                        <div class="stat-info">
+                            <span>Total Registered Residents</span>
+                            <h3 id="stat-residents">--</h3>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-green">
+                        <div class="stat-info">
+                            <span>Visitors Inside Premises</span>
+                            <h3 id="stat-inside">--</h3>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-building-user"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-warning">
+                        <div class="stat-info">
+                            <span>Total Unique Visitors</span>
+                            <h3 id="stat-visitors">--</h3>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-id-card-clip"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-purple">
+                        <div class="stat-info">
+                            <span>Total Completed Visits</span>
+                            <h3 id="stat-completed">--</h3>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Action Buttons Bar -->
+                <section class="quick-actions-bar">
+                    <button class="btn btn-primary" onclick="openModal('quickCheckInModal')">
+                        <i class="fa-solid fa-door-open"></i> Register Visitor
+                    </button>
+                    <button class="btn btn-success" onclick="openModal('addResidentModal')">
+                        <i class="fa-solid fa-user-plus"></i> Add Resident
+                    </button>
+                    <a href="list.html?tab=residents" class="btn btn-outline">
+                        <i class="fa-solid fa-address-book"></i> View Residents
+                    </a>
+                    <a href="list.html?tab=visitors" class="btn btn-outline">
+                        <i class="fa-solid fa-address-card"></i> View Visitors
+                    </a>
+                    <a href="listone.html" class="btn btn-outline">
+                        <i class="fa-solid fa-magnifying-glass"></i> View Visit Records
+                    </a>
+                </section>
+
+                <!-- Active Visitors Inside Premises (Fast Check-out) -->
+                <section class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-person-shelter"></i> Visitors Currently Inside
+                        </h3>
+                        <span class="badge badge-inside" id="active-inside-badge">Live Counter: 0</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table" id="active-visitors-table">
+                            <thead>
+                                <tr>
+                                    <th>Visit ID</th>
+                                    <th>Visitor Name</th>
+                                    <th>Phone</th>
+                                    <th>Vehicle No</th>
+                                    <th>Visiting Flat</th>
+                                    <th>Purpose</th>
+                                    <th>Entry Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="active-visitors-tbody">
+                                <tr>
+                                    <td colspan="9" class="empty-state">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                        <p>Loading active visitor records from MySQL...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Recent Activity Feed -->
+                <section class="content-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Recent Visitor Activity Log
+                        </h3>
+                        <a href="listone.html" class="btn btn-outline btn-sm">
+                            View All Logs <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table" id="recent-activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Visit ID</th>
+                                    <th>Visitor Name</th>
+                                    <th>Resident / Flat</th>
+                                    <th>Purpose</th>
+                                    <th>Entry Time</th>
+                                    <th>Exit Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-activity-tbody">
+                                <tr>
+                                    <td colspan="8" class="empty-state">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                        <p>Loading activity from database...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div>
+                    <strong>GateNest</strong> &copy; 2026 Apartment Visitor Management System. All rights reserved.
+                </div>
+                <div>
+                    Connected to MySQL Database: <code>apartment_visitor_management</code>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- MODAL 1: Fast Visitor Check-In / Register Entry -->
+    <div class="modal-overlay" id="quickCheckInModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-door-open" style="color: var(--brand-primary);"></i> Visitor Check-In & Entry Log</h3>
+                <button class="modal-close-btn" onclick="closeModal('quickCheckInModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkInForm">
+                    <div class="form-group">
+                        <label for="checkin_resident_id">Visiting Resident & Flat <span class="required">*</span></label>
+                        <select id="checkin_resident_id" class="form-control" required>
+                            <option value="">-- Loading Residents from MySQL... --</option>
+                        </select>
+                        <div class="form-hint">Select the registered apartment resident to be visited.</div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="checkin_visitor_name">Visitor Full Name <span class="required">*</span></label>
+                            <input type="text" id="checkin_visitor_name" class="form-control" placeholder="e.g. Ramesh Patel" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="checkin_visitor_phone">Visitor Contact Phone <span class="required">*</span></label>
+                            <input type="tel" id="checkin_visitor_phone" class="form-control" placeholder="e.g. 9876543210" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="checkin_vehicle_no">Vehicle Registration No. (Optional)</label>
+                            <input type="text" id="checkin_vehicle_no" class="form-control" placeholder="e.g. MH-12-AB-1234">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="checkin_purpose">Purpose of Visit <span class="required">*</span></label>
+                            <input type="text" id="checkin_purpose" class="form-control" placeholder="e.g. Courier, Guest, Maintenance" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('quickCheckInModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-check"></i> Complete Check-In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Add New Resident -->
+    <div class="modal-overlay" id="addResidentModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-house-user" style="color: var(--brand-secondary);"></i> Add New Resident</h3>
+                <button class="modal-close-btn" onclick="closeModal('addResidentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addResidentForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="resident_name">Full Name <span class="required">*</span></label>
+                            <input type="text" id="resident_name" class="form-control" placeholder="e.g. Dr. Rajesh Sharma" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resident_flat">Flat / Unit Number <span class="required">*</span></label>
+                            <input type="text" id="resident_flat" class="form-control" placeholder="e.g. A-101" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="resident_phone">Mobile Number <span class="required">*</span></label>
+                            <input type="tel" id="resident_phone" class="form-control" placeholder="e.g. 9876543210" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resident_email">Email Address (Optional)</label>
+                            <input type="email" id="resident_email" class="form-control" placeholder="e.g. rajesh@gmail.com">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('addResidentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-plus"></i> Save Resident
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="script.js"></script>
+    <script>
+        async function loadDashboard() {
+            try {
+                const res = await fetch("/api/stats");
+                const data = await res.json();
+
+                if (data.success) {
+                    const s = data.stats;
+                    document.getElementById("stat-residents").textContent = s.totalResidents;
+                    document.getElementById("stat-visitors").textContent = s.totalVisitors;
+                    document.getElementById("stat-inside").textContent = s.insideVisitors;
+                    document.getElementById("stat-completed").textContent = s.completedVisits;
+                    document.getElementById("active-inside-badge").textContent = `Live: ${s.insideVisitors} Inside`;
+
+                    // Render Active Inside Visitors
+                    const insideTbody = document.getElementById("active-visitors-tbody");
+                    if (!data.activeInside || data.activeInside.length === 0) {
+                        insideTbody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fa-solid fa-shield-check"></i>
+                                    <h4>No Visitors Currently Inside</h4>
+                                    <p>All registered visitors have checked out of the premises.</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        insideTbody.innerHTML = data.activeInside.map(v => `
+                            <tr>
+                                <td><strong>#${v.visit_id}</strong></td>
+                                <td><strong>${v.visitor_name}</strong></td>
+                                <td>${v.visitor_phone}</td>
+                                <td>${v.vehicle_no ? `<span class="badge badge-flat">${v.vehicle_no}</span>` : '<span class="text-muted">None</span>'}</td>
+                                <td><span class="badge badge-flat">${v.flat_no}</span> (${v.resident_name})</td>
+                                <td>${v.purpose}</td>
+                                <td>${formatDateTime(v.entry_time)}</td>
+                                <td><span class="badge badge-inside">Inside</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="btn btn-danger btn-sm" onclick="checkoutVisit(${v.visit_id})">
+                                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Check Out
+                                        </button>
+                                        <a href="listone.html?type=visit&id=${v.visit_id}" class="icon-btn" title="View Pass">
+                                            <i class="fa-solid fa-id-badge"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+
+                    // Render Recent Activity Feed
+                    const recentTbody = document.getElementById("recent-activity-tbody");
+                    if (!data.recentVisits || data.recentVisits.length === 0) {
+                        recentTbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <i class="fa-solid fa-list-check"></i>
+                                    <h4>No Recent Activity</h4>
+                                    <p>Visitor entries will appear here in chronological order.</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        recentTbody.innerHTML = data.recentVisits.map(v => `
+                            <tr>
+                                <td><strong>#${v.visit_id}</strong></td>
+                                <td><strong>${v.visitor_name}</strong></td>
+                                <td><span class="badge badge-flat">${v.flat_no}</span> (${v.resident_name})</td>
+                                <td>${v.purpose}</td>
+                                <td>${formatDateTime(v.entry_time)}</td>
+                                <td>${formatDateTime(v.exit_time)}</td>
+                                <td>
+                                    <span class="badge ${v.status === 'Inside' ? 'badge-inside' : 'badge-completed'}">
+                                        ${v.status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="listone.html?type=visit&id=${v.visit_id}" class="icon-btn" title="View Full Details">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a href="update.html?type=visit&id=${v.visit_id}" class="icon-btn" title="Edit Record">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        ${v.status === 'Inside' ? `
+                                            <button class="icon-btn btn-checkout" onclick="checkoutVisit(${v.visit_id})" title="Check Out">
+                                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading dashboard data:", err);
+                showToast("Failed to connect to MySQL database backend.", "danger");
+            }
+        }
+
+        // Fast Check-In Form Submit
+        document.getElementById("checkInForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                resident_id: document.getElementById("checkin_resident_id").value,
+                visitor_name: document.getElementById("checkin_visitor_name").value,
+                visitor_phone: document.getElementById("checkin_visitor_phone").value,
+                vehicle_no: document.getElementById("checkin_vehicle_no").value,
+                purpose: document.getElementById("checkin_purpose").value
+            };
+
+            try {
+                const res = await fetch("/api/visits", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    closeModal("quickCheckInModal");
+                    document.getElementById("checkInForm").reset();
+                    loadDashboard();
+                } else {
+                    showToast(result.message || "Failed to check in visitor.", "danger");
+                }
+            } catch (err) {
+                showToast("Network connection error.", "danger");
+            }
+        });
+
+        // Add Resident Form Submit
+        document.getElementById("addResidentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById("resident_name").value,
+                flat_no: document.getElementById("resident_flat").value,
+                phone: document.getElementById("resident_phone").value,
+                email: document.getElementById("resident_email").value
+            };
+
+            try {
+                const res = await fetch("/api/residents", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (res.ok && result.success) {
+                    showToast(result.message, "success");
+                    closeModal("addResidentModal");
+                    document.getElementById("addResidentForm").reset();
+                    populateResidentsDropdown("checkin_resident_id");
+                    loadDashboard();
+                } else {
+                    showToast(result.message || "Failed to add resident.", "danger");
+                }
+            } catch (err) {
+                showToast("Network error submitting resident.", "danger");
+            }
+        });
+
+        // Initialize Page
+        document.addEventListener("DOMContentLoaded", () => {
+            populateResidentsDropdown("checkin_resident_id");
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>
